@@ -623,9 +623,13 @@
         cada acceso auditado, cada cifra verificable.
       </p>
       <form id="lead-form" class="form-group">
+        <!-- Honeypot: invisible to humans, bots fill it -->
+        <input type="text" name="company_website" id="hp-field" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;pointer-events:none;">
         <input type="email" id="lead-email" class="form-group__input" placeholder="Tu correo corporativo" required>
         <button type="submit" class="form-group__btn">Acceso anticipado</button>
       </form>
+      <!-- Turnstile widget: invisible mode -->
+      <div id="turnstile-box" class="cf-turnstile" data-sitekey="0x4AAAAAACuOuSvmGu5vrLP2" data-size="compact" data-theme="light" data-callback="onTurnstilePass" style="margin-top:0.5rem;"></div>
       <p id="form-note" class="form-note">Sin compromiso. Te notificaremos cuando estemos listos.</p>
     </div>
 
@@ -821,28 +825,78 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
 (function() {
+  // ─── CONFIG ───
   const SUPABASE_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
+  const MIN_SUBMIT_TIME_MS = 3000; // 3 seconds minimum
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // ─── DOM ───
   const form = document.getElementById('lead-form');
   const input = document.getElementById('lead-email');
   const btn = form.querySelector('button');
   const note = document.getElementById('form-note');
+  const honeypot = document.getElementById('hp-field');
 
+  // ─── TIME GATE ───
+  const pageLoadTime = Date.now();
+
+  // ─── TURNSTILE STATE ───
+  let turnstileToken = null;
+
+  // Callback invoked by Turnstile widget on success
+  window.onTurnstilePass = function(token) {
+    turnstileToken = token;
+  };
+
+  // ─── SUBMIT ───
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
+
     const email = input.value.trim();
     if (!email) return;
+
+    // Layer 1: Honeypot check
+    if (honeypot.value !== '') {
+      // Silently reject — bot filled the hidden field
+      note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
+      note.style.color = 'var(--primary)';
+      input.value = '';
+      return;
+    }
+
+    // Layer 2: Time validation
+    const elapsed = Date.now() - pageLoadTime;
+    if (elapsed < MIN_SUBMIT_TIME_MS) {
+      // Too fast — likely a bot
+      note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
+      note.style.color = 'var(--primary)';
+      input.value = '';
+      return;
+    }
+
+    // Layer 3: Turnstile token check
+    if (!turnstileToken) {
+      note.textContent = 'Completa la verificación de seguridad.';
+      note.style.color = 'var(--error)';
+      return;
+    }
 
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
     try {
-      const { error } = await sb.from('leads').insert([{ email: email }]);
+      const { error } = await sb
+        .from('leads')
+        .insert([{
+          email: email,
+          cf_token: turnstileToken  // store for optional server-side validation
+        }]);
+
       if (error) {
         if (error.code === '23505') {
           note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
@@ -862,6 +916,11 @@
     } finally {
       btn.disabled = false;
       btn.textContent = 'Acceso anticipado';
+      // Reset Turnstile for next submission
+      turnstileToken = null;
+      if (window.turnstile) {
+        window.turnstile.reset();
+      }
     }
   });
 })();
