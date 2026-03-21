@@ -1,5 +1,1202 @@
 <!DOCTYPE html>
 <html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aequo — Sistema Contable</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #34146c;
+      --primary-container: #4b2e83;
+      --primary-fixed: #e8ddf5;
+      --secondary: #9a7cbf;
+      --surface: #fef7ff;
+      --surface-container: #f3ebf7;
+      --surface-container-low: #f9f1fc;
+      --surface-container-lowest: #ffffff;
+      --surface-container-highest: #e7e0eb;
+      --surface-variant: #e7e0eb;
+      --on-surface: #1d1a22;
+      --on-surface-variant: #4a4458;
+      --outline-variant: #cbc4d2;
+      --error: #ba1a1a;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ═══ AMBIENT BACKGROUND ═══ */
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.25;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-orb--1 {
+      width: 600px;
+      height: 600px;
+      background: var(--primary);
+      top: -200px;
+      right: -100px;
+      animation: orbFloat1 18s ease-in-out infinite;
+    }
+
+    .ambient-orb--2 {
+      width: 450px;
+      height: 450px;
+      background: var(--secondary);
+      bottom: -150px;
+      left: -100px;
+      animation: orbFloat2 22s ease-in-out infinite;
+    }
+
+    .ambient-orb--3 {
+      width: 300px;
+      height: 300px;
+      background: var(--primary-container);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.12;
+      animation: orbFloat3 15s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(-40px, 30px) scale(1.05);
+      }
+
+      66% {
+        transform: translate(20px, -20px) scale(0.95);
+      }
+    }
+
+    @keyframes orbFloat2 {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(30px, -40px) scale(1.08);
+      }
+    }
+
+    @keyframes orbFloat3 {
+
+      0%,
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      50% {
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+    }
+
+    /* ═══ LAYOUT ═══ */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ═══ NAV ═══ */
+    .nav {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideDown 0.8s ease-out both;
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav__logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .nav__name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--on-surface);
+      letter-spacing: -0.02em;
+    }
+
+    .nav__tag {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: var(--primary-fixed);
+      padding: 0.3rem 0.85rem;
+      border-radius: 9999px;
+    }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      padding: 2rem 3rem 4rem;
+      align-items: center;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero__content {
+      animation: fadeSlideUp 0.9s 0.15s ease-out both;
+    }
+
+    .hero__coming {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .hero__coming::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.7);
+      }
+    }
+
+    .hero__title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+      color: var(--on-surface);
+      margin-bottom: 1.75rem;
+    }
+
+    .hero__title span {
+      background: linear-gradient(135deg, var(--primary), var(--primary-container));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero__quote {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      line-height: 1.65;
+      margin-bottom: 1rem;
+      font-style: italic;
+      letter-spacing: -0.01em;
+    }
+
+    .hero__desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--on-surface-variant);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 480px;
+    }
+
+    /* ═══ EMAIL FORM ═══ */
+    .form-group {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      max-width: 440px;
+    }
+
+    .form-group__input {
+      flex: 1;
+      padding: 0.9rem 1.4rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem;
+      background: var(--surface-container-low);
+      border: 2px solid transparent;
+      border-radius: 1.5rem;
+      color: var(--on-surface);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-group__input::placeholder {
+      color: var(--outline-variant);
+    }
+
+    .form-group__input:focus {
+      background: var(--surface-container-lowest);
+      border-color: rgba(203, 196, 210, 0.15);
+      box-shadow: 0 0 0 4px rgba(52, 20, 108, 0.06);
+    }
+
+    .form-group__btn {
+      padding: 0.9rem 0.9rem;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-container));
+      border: none;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.35s ease;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-group__btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      transition: background 0.35s ease;
+      border-radius: inherit;
+    }
+
+    .form-group__btn:hover::after {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .form-group__btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 30px rgba(52, 20, 108, 0.25);
+    }
+
+    .form-note {
+      font-size: 0.73rem;
+      color: var(--outline-variant);
+      margin-top: 0.75rem;
+      letter-spacing: 0.01em;
+    }
+
+    /* ═══ VISUAL COLUMN — DASHBOARD GRID ═══ */
+    .hero__visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      animation: fadeSlideUp 1s 0.4s ease-out both;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.7rem;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .dash-card {
+      background: var(--primary);
+      border-radius: 1.25rem;
+      padding: 1.1rem 1.15rem 0.9rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      min-height: 145px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dash-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 14px 36px rgba(52, 20, 108, 0.3);
+    }
+
+    .dash-card__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.45rem;
+    }
+
+    .dash-card__label {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.02em;
+    }
+
+    .dash-card__arrow {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dash-card__arrow svg {
+      width: 8px;
+      height: 8px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .dash-card__value {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .dash-card__sub {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.58rem;
+      color: rgba(255, 255, 255, 0.4);
+      margin-top: 0.15rem;
+    }
+
+    .dash-card__sub .up {
+      color: #a8e6a1;
+      font-weight: 600;
+    }
+
+    .dash-card__sub .period {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .dash-card__chart {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      margin-top: 0.5rem;
+      min-height: 40px;
+    }
+
+    .dash-card__chart svg {
+      width: 100%;
+      display: block;
+    }
+
+    /* Donut specific */
+    .dash-card--donut .dash-card__chart {
+      align-items: center;
+      justify-content: center;
+    }
+
+    .donut-wrap {
+      position: relative;
+      width: 64px;
+      height: 64px;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .donut-legend {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 0.4rem;
+      justify-content: center;
+    }
+
+    .donut-legend__item {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.5rem;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .donut-legend__dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    /* Bar chart specific */
+    .bar-group {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 40px;
+      width: 100%;
+    }
+
+    .bar-group__bar {
+      flex: 1;
+      border-radius: 2px 2px 0 0;
+      min-width: 0;
+      transition: height 0.6s ease;
+    }
+
+    /* Progress bar card */
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      margin-top: 0.6rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--secondary), #c9b4e8);
+      transition: width 1.5s ease;
+    }
+
+    .progress-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.3rem;
+    }
+
+    .progress-labels span {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.5rem;
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    /* Stagger entrance */
+    .dash-card {
+      opacity: 0;
+      animation: dashCardIn 0.5s ease-out forwards;
+    }
+
+    .dash-card:nth-child(1) {
+      animation-delay: 0.5s;
+    }
+
+    .dash-card:nth-child(2) {
+      animation-delay: 0.65s;
+    }
+
+    .dash-card:nth-child(3) {
+      animation-delay: 0.8s;
+    }
+
+    .dash-card:nth-child(4) {
+      animation-delay: 0.95s;
+    }
+
+    .dash-card:nth-child(5) {
+      animation-delay: 1.1s;
+    }
+
+    .dash-card:nth-child(6) {
+      animation-delay: 1.25s;
+    }
+
+    @keyframes dashCardIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Line draw animation */
+    .line-anim {
+      stroke-dasharray: 300;
+      stroke-dashoffset: 300;
+      animation: drawLine 2s 1.2s ease forwards;
+    }
+
+    @keyframes drawLine {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .area-anim {
+      opacity: 0;
+      animation: areaFade 1s 2.5s ease forwards;
+    }
+
+    @keyframes areaFade {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ═══ FEATURES STRIP ═══ */
+    .features {
+      padding: 0 3rem 3rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      animation: fadeSlideUp 1s 0.6s ease-out both;
+    }
+
+    .features__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--surface-container-low);
+      border-radius: 2rem;
+      padding: 2rem 2rem 1.8rem;
+      transition: all 0.4s ease;
+      cursor: default;
+    }
+
+    .feature-card:hover {
+      background: var(--surface-container-lowest);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(29, 26, 34, 0.05);
+    }
+
+    .feature-card__icon {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-fixed);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .feature-card__icon svg {
+      width: 22px;
+      height: 22px;
+      color: var(--primary);
+    }
+
+    .feature-card__title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--on-surface);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card__text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.82rem;
+      color: var(--on-surface-variant);
+      line-height: 1.6;
+    }
+
+    /* ═══ FOOTER ═══ */
+    .footer {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideUp 1s 0.8s ease-out both;
+    }
+
+    .footer__copy {
+      font-size: 0.75rem;
+      color: var(--outline-variant);
+      letter-spacing: 0.01em;
+    }
+
+    .footer__links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer__link {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      transition: color 0.25s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .footer__link:hover {
+      color: var(--primary);
+    }
+
+    /* ═══ ANIMATIONS ═══ */
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ═══ RESPONSIVE ═══ */
+    @media (max-width: 960px) {
+      .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 2rem 2rem 3rem;
+      }
+
+      .hero__content {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .hero__visual {
+        order: 1;
+        margin-bottom: 1rem;
+      }
+
+      .dash-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 360px;
+      }
+
+      .hero__title {
+        font-size: 2.5rem;
+      }
+
+      .features__grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .form-group__btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .nav {
+        padding: 1.5rem 2rem;
+      }
+
+      .features {
+        padding: 0 2rem 2rem;
+      }
+
+      .footer {
+        padding: 1.5rem 2rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dash-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        max-width: 320px;
+      }
+
+      .dash-card__value {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Orbs -->
+  <div class="ambient-orb ambient-orb--1"></div>
+  <div class="ambient-orb ambient-orb--2"></div>
+  <div class="ambient-orb ambient-orb--3"></div>
+
+  <div class="page">
+
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="nav__brand">
+        <img src="aequo-logo.png" alt="Aequo" class="nav__logo">
+        <span class="nav__name">Aequo</span>
+      </div>
+      <span class="nav__tag">Próximamente</span>
+    </nav>
+
+    <!-- Hero -->
+    <main class="hero">
+      <div class="hero__content">
+        <div class="hero__coming">Coming Soon — 2026</div>
+        <h1 class="hero__title">
+          Contabilidad <span>transparente</span>,<br>
+          diseñada para<br>
+          <span>proteger</span> tu empresa.
+        </h1>
+        <p class="hero__quote">"Precisión, claridad y control. Así debería sentirse."</p>
+        <p class="hero__desc">
+          Aequo es un sistema contable empresarial construido desde cero con
+          seguridad como fundamento. Cada transacción queda registrada,
+          cada acceso auditado, cada cifra verificable.
+        </p>
+        <form id="lead-form" class="form-group">
+          <!-- Honeypot: invisible to humans, bots fill it -->
+          <input type="text" name="company_website" id="hp-field" autocomplete="off" tabindex="-1"
+            style="position:absolute;left:-9999px;top:-9999px;opacity:0;height:0;width:0;pointer-events:none;">
+          <input type="email" id="lead-email" class="form-group__input" placeholder="Tu correo corporativo" required>
+          <button type="submit" class="form-group__btn">Acceso anticipado</button>
+        </form>
+        <p id="form-note" class="form-note">Sin compromiso. Te notificaremos cuando estemos listos.</p>
+      </div>
+
+      <div class="hero__visual">
+        <div class="dash-grid">
+
+          <!-- Card 1: Ingresos — Line chart -->
+          <div class="dash-card">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Ingresos Netos</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__value">$12.4M</div>
+            <div class="dash-card__sub"><span class="up">+8.3%</span> <span class="period">/ mes</span></div>
+            <div class="dash-card__chart">
+              <svg viewBox="0 0 140 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="areaG1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#9a7cbf" stop-opacity="0.35" />
+                    <stop offset="100%" stop-color="#9a7cbf" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path class="area-anim" d="M0 38 Q10 36 20 32 T45 28 T65 20 T85 22 T105 14 T125 10 T140 6 V45 H0Z"
+                  fill="url(#areaG1)" />
+                <path class="line-anim" d="M0 38 Q10 36 20 32 T45 28 T65 20 T85 22 T105 14 T125 10 T140 6"
+                  stroke="#c9b4e8" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 2: Patrimonio — Progress bar -->
+          <div class="dash-card">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Patrimonio</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__value">$42.8M</div>
+            <div class="dash-card__sub">Activos consolidados</div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: 72%"></div>
+            </div>
+            <div class="progress-labels">
+              <span>Pasivos 28%</span>
+              <span>Activos 72%</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Margen — Area chart -->
+          <div class="dash-card">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Margen Operativo</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__value">24.6%</div>
+            <div class="dash-card__sub"><span class="up">+2.1pp</span> <span class="period">vs Q3</span></div>
+            <div class="dash-card__chart">
+              <svg viewBox="0 0 140 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="areaG2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#c9b4e8" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#c9b4e8" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path class="area-anim" d="M0 30 Q15 28 25 25 T50 30 T75 18 T100 22 T120 12 T140 8 V45 H0Z"
+                  fill="url(#areaG2)" />
+                <path class="line-anim" d="M0 30 Q15 28 25 25 T50 30 T75 18 T100 22 T120 12 T140 8" stroke="#e8ddf5"
+                  stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Card 4: Cuentas — Bar chart -->
+          <div class="dash-card">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Cuentas por Cobrar</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__value">$3.2M</div>
+            <div class="dash-card__sub"><span class="up">-12 días</span> <span class="period">rotación</span></div>
+            <div class="dash-card__chart">
+              <div class="bar-group">
+                <div class="bar-group__bar" style="height:45%;background:rgba(154,124,191,0.3)"></div>
+                <div class="bar-group__bar" style="height:60%;background:rgba(154,124,191,0.35)"></div>
+                <div class="bar-group__bar" style="height:50%;background:rgba(154,124,191,0.3)"></div>
+                <div class="bar-group__bar" style="height:75%;background:rgba(154,124,191,0.4)"></div>
+                <div class="bar-group__bar" style="height:65%;background:rgba(154,124,191,0.35)"></div>
+                <div class="bar-group__bar" style="height:80%;background:rgba(201,180,232,0.5)"></div>
+                <div class="bar-group__bar" style="height:55%;background:rgba(154,124,191,0.35)"></div>
+                <div class="bar-group__bar" style="height:90%;background:rgba(201,180,232,0.55)"></div>
+                <div class="bar-group__bar" style="height:70%;background:rgba(201,180,232,0.5)"></div>
+                <div class="bar-group__bar" style="height:85%;background:rgba(201,180,232,0.55)"></div>
+                <div class="bar-group__bar" style="height:60%;background:rgba(154,124,191,0.4)"></div>
+                <div class="bar-group__bar" style="height:95%;background:#c9b4e8"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Auditoría — Donut -->
+          <div class="dash-card dash-card--donut">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Integridad Auditoría</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__chart">
+              <div>
+                <div class="donut-wrap">
+                  <svg viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(154,124,191,0.2)" stroke-width="4" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#c9b4e8" stroke-width="4"
+                      stroke-dasharray="84.4 3.6" stroke-dashoffset="25" stroke-linecap="round"
+                      style="transition: stroke-dasharray 1.5s ease" />
+                    <circle cx="18" cy="18" r="14" fill="none" stroke="#9a7cbf" stroke-width="4"
+                      stroke-dasharray="3.6 84.4" stroke-dashoffset="28.6" stroke-linecap="round" />
+                  </svg>
+                  <div class="donut-center">96%</div>
+                </div>
+                <div class="donut-legend">
+                  <span class="donut-legend__item"><span class="donut-legend__dot"
+                      style="background:#c9b4e8"></span>Válidas</span>
+                  <span class="donut-legend__item"><span class="donut-legend__dot"
+                      style="background:#9a7cbf"></span>Pendientes</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6: Flujo de caja — Mixed bar chart -->
+          <div class="dash-card">
+            <div class="dash-card__head">
+              <span class="dash-card__label">Flujo de Caja</span>
+              <span class="dash-card__arrow"><svg viewBox="0 0 8 8" fill="none" stroke="currentColor"
+                  stroke-width="1.5">
+                  <path d="M2 6L6 2M6 2H3M6 2V5" />
+                </svg></span>
+            </div>
+            <div class="dash-card__value">$1.8M</div>
+            <div class="dash-card__sub"><span class="period">Marzo 2026</span></div>
+            <div class="dash-card__chart">
+              <div class="bar-group">
+                <div class="bar-group__bar" style="height:40%;background:rgba(201,180,232,0.35)"></div>
+                <div class="bar-group__bar" style="height:55%;background:rgba(201,180,232,0.4)"></div>
+                <div class="bar-group__bar" style="height:70%;background:rgba(201,180,232,0.5)"></div>
+                <div class="bar-group__bar" style="height:50%;background:rgba(201,180,232,0.4)"></div>
+                <div class="bar-group__bar" style="height:85%;background:#c9b4e8"></div>
+                <div class="bar-group__bar" style="height:60%;background:rgba(201,180,232,0.45)"></div>
+                <div class="bar-group__bar" style="height:75%;background:rgba(201,180,232,0.5)"></div>
+                <div class="bar-group__bar" style="height:45%;background:rgba(201,180,232,0.35)"></div>
+                <div class="bar-group__bar" style="height:90%;background:#c9b4e8"></div>
+                <div class="bar-group__bar" style="height:65%;background:rgba(201,180,232,0.45)"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+    <!-- Feature Strip -->
+    <section class="features">
+      <div class="features__grid">
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Seguridad de grado bancario</h3>
+          <p class="feature-card__text">Cifrado de extremo a extremo, autenticación multifactor y registros de auditoría
+            inmutables en cada operación.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Transparencia total</h3>
+          <p class="feature-card__text">Cada número tiene origen y trazabilidad. Nada se esconde, todo se sustenta.
+            Genera confianza desde la primera línea.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card__icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+            </svg>
+          </div>
+          <h3 class="feature-card__title">Control en tiempo real</h3>
+          <p class="feature-card__text">Dashboards vivos con indicadores financieros actualizados al instante. Toma
+            decisiones con datos, no con suposiciones.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span class="footer__copy">&copy; 2026 Aequo. Todos los derechos reservados.</span>
+      <div class="footer__links">
+        <a href="#" class="footer__link">Política de privacidad</a>
+        <a href="#" class="footer__link">Términos</a>
+        <a href="#" class="footer__link">Contacto</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script>
+    (function () {
+      // ─── CONFIG ───
+      const SUPABASE_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
+      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
+      const TURNSTILE_SITE_KEY = "YOUR_TURNSTILE_SITE_KEY";
+      const MIN_SUBMIT_TIME_MS = 3000;
+
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+      // ─── DOM ───
+      const form = document.getElementById('lead-form');
+      const input = document.getElementById('lead-email');
+      const btn = form.querySelector('button');
+      const note = document.getElementById('form-note');
+      const honeypot = document.getElementById('hp-field');
+
+      // ─── TIME GATE ───
+      const pageLoadTime = Date.now();
+
+      // ─── TURNSTILE: invisible, explicit render ───
+      let turnstileWidgetId = null;
+      let turnstileToken = null;
+      let pendingSubmit = false;
+
+      // Wait for Turnstile script to load, then render invisibly
+      function initTurnstile() {
+        if (window.turnstile && !turnstileWidgetId) {
+          turnstileWidgetId = window.turnstile.render(form, {
+            sitekey: TURNSTILE_SITE_KEY,
+            size: 'invisible',
+            callback: function (token) {
+              turnstileToken = token;
+              if (pendingSubmit) {
+                pendingSubmit = false;
+                doSubmit();
+              }
+            },
+            'error-callback': function () {
+              note.textContent = 'Error de verificación. Recarga la página.';
+              note.style.color = 'var(--error)';
+              btn.disabled = false;
+              btn.textContent = 'Acceso anticipado';
+              pendingSubmit = false;
+            }
+          });
+        } else {
+          setTimeout(initTurnstile, 200);
+        }
+      }
+      initTurnstile();
+
+      // ─── SUBMIT FLOW ───
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = input.value.trim();
+        if (!email) return;
+
+        // Layer 1: Honeypot
+        if (honeypot.value !== '') {
+          fakeSuccess();
+          return;
+        }
+
+        // Layer 2: Time check
+        if (Date.now() - pageLoadTime < MIN_SUBMIT_TIME_MS) {
+          fakeSuccess();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Verificando...';
+
+        // Layer 3: Turnstile — if no token yet, request one
+        if (!turnstileToken) {
+          pendingSubmit = true;
+          window.turnstile.execute(turnstileWidgetId);
+          return;
+        }
+
+        doSubmit();
+      });
+
+      async function doSubmit() {
+        btn.textContent = 'Enviando...';
+        const email = input.value.trim();
+
+        try {
+          const { error } = await sb
+            .from('leads')
+            .insert([{ email: email, cf_token: turnstileToken }]);
+
+          if (error) {
+            if (error.code === '23505') {
+              note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
+              note.style.color = 'var(--secondary)';
+            } else {
+              throw error;
+            }
+          } else {
+            note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
+            note.style.color = 'var(--primary)';
+            input.value = '';
+          }
+        } catch (err) {
+          console.error('Supabase error:', err);
+          note.textContent = 'Hubo un error. Intenta de nuevo.';
+          note.style.color = 'var(--error)';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Acceso anticipado';
+          turnstileToken = null;
+          if (window.turnstile) window.turnstile.reset(turnstileWidgetId);
+        }
+      }
+
+      function fakeSuccess() {
+        note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
+        note.style.color = 'var(--primary)';
+        input.value = '';
+      }
+    })();
+  </script>
+  <!-- Cloudflare Web Analytics -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "d833c383a13d4c35b359c94cfa146689"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html><!DOCTYPE html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
