@@ -303,7 +303,7 @@
     }
 
     .form-group__btn {
-      padding: 0.9rem 0.9rem;
+      padding: 0.9rem 1.8rem;
       font-family: 'Manrope', sans-serif;
       font-size: 0.85rem;
       font-weight: 700;
@@ -1065,143 +1065,75 @@
 
   </div>
 
-  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script>
     (function () {
-      // ─── CONFIG: only public values ───
-      const API_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co/functions/v1/lead";
-      const TURNSTILE_SITE_KEY = "0x4AAAAAACuOuSvmGu5vrLP2";
-      const MIN_SUBMIT_TIME_MS = 3000;
+      var API_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co/functions/v1/register-lead";
+      var MIN_SUBMIT_TIME_MS = 3000;
 
-      // ─── DOM ───
-      const form = document.getElementById('lead-form');
-      const input = document.getElementById('lead-email');
-      const btn = form.querySelector('button');
-      const note = document.getElementById('form-note');
-      const honeypot = document.getElementById('hp-field');
+      var form = document.getElementById('lead-form');
+      var input = document.getElementById('lead-email');
+      var btn = form.querySelector('button');
+      var note = document.getElementById('form-note');
+      var honeypot = document.getElementById('hp-field');
+      var pageLoadTime = Date.now();
 
-      // ─── TIME GATE ───
-      const pageLoadTime = Date.now();
-
-      // ─── TURNSTILE: invisible, explicit render ───
-      let turnstileWidgetId = null;
-      let turnstileToken = null;
-      let pendingSubmit = false;
-
-      function initTurnstile() {
-        if (window.turnstile && turnstileWidgetId === null) {
-          turnstileWidgetId = window.turnstile.render(form, {
-            sitekey: TURNSTILE_SITE_KEY,
-            size: 'invisible',
-            callback: function (token) {
-              turnstileToken = token;
-              if (pendingSubmit) {
-                pendingSubmit = false;
-                doSubmit();
-              }
-            },
-            'error-callback': function () {
-              note.textContent = 'Error de verificación. Recarga la página.';
-              note.style.color = 'var(--error)';
-              btn.disabled = false;
-              btn.textContent = 'Acceso anticipado';
-              pendingSubmit = false;
-            }
-          });
-        } else {
-          setTimeout(initTurnstile, 200);
-        }
-      }
-      initTurnstile();
-
-      // ─── SUBMIT FLOW ───
       form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const email = input.value.trim();
+        var email = input.value.trim();
         if (!email) return;
 
-        // Layer 1: Honeypot (duplicated client-side for speed)
         if (honeypot.value !== '') {
-          fakeSuccess();
+          note.textContent = '\u00A1Listo! Te notificaremos cuando lancemos.';
+          note.style.color = 'var(--primary)';
+          input.value = '';
           return;
         }
 
-        // Layer 2: Time check (duplicated client-side for speed)
         if (Date.now() - pageLoadTime < MIN_SUBMIT_TIME_MS) {
-          fakeSuccess();
+          note.textContent = '\u00A1Listo! Te notificaremos cuando lancemos.';
+          note.style.color = 'var(--primary)';
+          input.value = '';
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = 'Verificando...';
-
-        // Layer 3: Turnstile — request token, then submit
-        if (!turnstileToken) {
-          pendingSubmit = true;
-          window.turnstile.execute(turnstileWidgetId);
-          return;
-        }
-
-        doSubmit();
-      });
-
-      async function doSubmit() {
         btn.textContent = 'Enviando...';
 
-        try {
-          const res = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: input.value.trim(),
-              cf_token: turnstileToken,
-              hp: honeypot.value
-            })
-          });
-
-          const data = await res.json();
-
-          if (!res.ok) {
-            if (res.status === 429) {
-              note.textContent = 'Demasiadas solicitudes. Intenta en un minuto.';
+        fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, hp: honeypot.value })
+        })
+          .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; }); })
+          .then(function (result) {
+            if (!result.ok) {
+              if (result.status === 429) {
+                note.textContent = 'Demasiadas solicitudes. Intenta en un minuto.';
+              } else {
+                note.textContent = result.data.error || 'Hubo un error. Intenta de nuevo.';
+              }
               note.style.color = 'var(--error)';
-            } else if (res.status === 403) {
-              note.textContent = 'Verificación fallida. Recarga la página.';
-              note.style.color = 'var(--error)';
-            } else {
-              note.textContent = data.error || 'Hubo un error. Intenta de nuevo.';
-              note.style.color = 'var(--error)';
+              return;
             }
-            return;
-          }
-
-          if (data.message === 'already_registered') {
-            note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
-            note.style.color = 'var(--secondary)';
-          } else {
-            note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
-            note.style.color = 'var(--primary)';
-            input.value = '';
-          }
-
-        } catch (err) {
-          console.error('Request error:', err);
-          note.textContent = 'Error de conexión. Intenta de nuevo.';
-          note.style.color = 'var(--error)';
-        } finally {
-          btn.disabled = false;
-          btn.textContent = 'Acceso anticipado';
-          turnstileToken = null;
-          if (window.turnstile) window.turnstile.reset(turnstileWidgetId);
-        }
-      }
-
-      function fakeSuccess() {
-        note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
-        note.style.color = 'var(--primary)';
-        input.value = '';
-      }
+            if (result.data.message === 'already_registered') {
+              note.textContent = 'Ya est\u00E1s registrado. Te contactaremos pronto.';
+              note.style.color = 'var(--secondary)';
+            } else {
+              note.textContent = '\u00A1Listo! Te notificaremos cuando lancemos.';
+              note.style.color = 'var(--primary)';
+              input.value = '';
+            }
+          })
+          .catch(function () {
+            note.textContent = 'Error de conexi\u00F3n. Intenta de nuevo.';
+            note.style.color = 'var(--error)';
+          })
+          .finally(function () {
+            btn.disabled = false;
+            btn.textContent = 'Acceso anticipado';
+          });
+      });
     })();
   </script>
   <!-- Cloudflare Web Analytics -->
