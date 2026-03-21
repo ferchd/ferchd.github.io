@@ -622,10 +622,10 @@
         seguridad como fundamento. Cada transacción queda registrada,
         cada acceso auditado, cada cifra verificable.
       </p>
-      <div class="form-group">
-        <input type="email" class="form-group__input" placeholder="Tu correo corporativo">
-        <button class="form-group__btn">Acceso anticipado</button>
-      </div>
+      <form onsubmit="event.preventDefault(); save(this.email.value);" class="form-group">
+        <input type="email" name="emailAdd email storage" class="form-group__input" placeholder="Tu correo corporativo">
+        <button type="submit" class="form-group__btn">Acceso anticipado</button>
+      </form>
       <p class="form-note">Sin compromiso. Te notificaremos cuando estemos listos.</p>
     </div>
 
@@ -820,5 +820,18 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+const supabaseUrl = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
+const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
+
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+async function save(email) {
+  const { data, error } = await supabase
+    .from('leads')
+    .insert([{ email: email }]);
+}
+</script>
 </body>
 </html>
