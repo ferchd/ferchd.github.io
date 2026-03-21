@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aequo — Sistema Contable</title>
+<title>Aequo — Accounting System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -622,11 +622,11 @@
         seguridad como fundamento. Cada transacción queda registrada,
         cada acceso auditado, cada cifra verificable.
       </p>
-      <form onsubmit="event.preventDefault(); save(this.email.value);" class="form-group">
-        <input type="email" name="emailAdd email storage" class="form-group__input" placeholder="Tu correo corporativo">
+      <form id="lead-form" class="form-group">
+        <input type="email" id="lead-email" class="form-group__input" placeholder="Tu correo corporativo" required>
         <button type="submit" class="form-group__btn">Acceso anticipado</button>
       </form>
-      <p class="form-note">Sin compromiso. Te notificaremos cuando estemos listos.</p>
+      <p id="form-note" class="form-note">Sin compromiso. Te notificaremos cuando estemos listos.</p>
     </div>
 
     <div class="hero__visual">
@@ -820,18 +820,52 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const supabaseUrl = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
+(function() {
+  const SUPABASE_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
 
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-async function save(email) {
-  const { data, error } = await supabase
-    .from('leads')
-    .insert([{ email: email }]);
-}
+  const form = document.getElementById('lead-form');
+  const input = document.getElementById('lead-email');
+  const btn = form.querySelector('button');
+  const note = document.getElementById('form-note');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = input.value.trim();
+    if (!email) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    try {
+      const { error } = await sb.from('leads').insert([{ email: email }]);
+      if (error) {
+        if (error.code === '23505') {
+          note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
+          note.style.color = 'var(--secondary)';
+        } else {
+          throw error;
+        }
+      } else {
+        note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
+        note.style.color = 'var(--primary)';
+        input.value = '';
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+      note.textContent = 'Hubo un error. Intenta de nuevo.';
+      note.style.color = 'var(--error)';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Acceso anticipado';
+    }
+  });
+})();
 </script>
+
 </body>
 </html>
