@@ -1065,17 +1065,13 @@
 
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
   <script>
     (function () {
-      // ─── CONFIG ───
-      const SUPABASE_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co";
-      const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkZm1oa2R3dm1sYmtjd3Bxa3pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMjA0NzcsImV4cCI6MjA4OTY5NjQ3N30.b6oahTkFl3HWzziePbupC0BOUWYA52Yq-YnemtNdzZg";
+      // ─── CONFIG: only public values ───
+      const API_URL = "https://kdfmhkdwvmlbkcwpqkzg.supabase.co/functions/v1/lead";
       const TURNSTILE_SITE_KEY = "0x4AAAAAACuOuSvmGu5vrLP2";
       const MIN_SUBMIT_TIME_MS = 3000;
-
-      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
       // ─── DOM ───
       const form = document.getElementById('lead-form');
@@ -1092,9 +1088,8 @@
       let turnstileToken = null;
       let pendingSubmit = false;
 
-      // Wait for Turnstile script to load, then render invisibly
       function initTurnstile() {
-        if (window.turnstile && !turnstileWidgetId) {
+        if (window.turnstile && turnstileWidgetId === null) {
           turnstileWidgetId = window.turnstile.render(form, {
             sitekey: TURNSTILE_SITE_KEY,
             size: 'invisible',
@@ -1126,13 +1121,13 @@
         const email = input.value.trim();
         if (!email) return;
 
-        // Layer 1: Honeypot
+        // Layer 1: Honeypot (duplicated client-side for speed)
         if (honeypot.value !== '') {
           fakeSuccess();
           return;
         }
 
-        // Layer 2: Time check
+        // Layer 2: Time check (duplicated client-side for speed)
         if (Date.now() - pageLoadTime < MIN_SUBMIT_TIME_MS) {
           fakeSuccess();
           return;
@@ -1141,7 +1136,7 @@
         btn.disabled = true;
         btn.textContent = 'Verificando...';
 
-        // Layer 3: Turnstile — if no token yet, request one
+        // Layer 3: Turnstile — request token, then submit
         if (!turnstileToken) {
           pendingSubmit = true;
           window.turnstile.execute(turnstileWidgetId);
@@ -1153,28 +1148,46 @@
 
       async function doSubmit() {
         btn.textContent = 'Enviando...';
-        const email = input.value.trim();
 
         try {
-          const { error } = await sb
-            .from('leads')
-            .insert([{ email: email, cf_token: turnstileToken }]);
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: input.value.trim(),
+              cf_token: turnstileToken,
+              hp: honeypot.value
+            })
+          });
 
-          if (error) {
-            if (error.code === '23505') {
-              note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
-              note.style.color = 'var(--secondary)';
+          const data = await res.json();
+
+          if (!res.ok) {
+            if (res.status === 429) {
+              note.textContent = 'Demasiadas solicitudes. Intenta en un minuto.';
+              note.style.color = 'var(--error)';
+            } else if (res.status === 403) {
+              note.textContent = 'Verificación fallida. Recarga la página.';
+              note.style.color = 'var(--error)';
             } else {
-              throw error;
+              note.textContent = data.error || 'Hubo un error. Intenta de nuevo.';
+              note.style.color = 'var(--error)';
             }
+            return;
+          }
+
+          if (data.message === 'already_registered') {
+            note.textContent = 'Ya estás registrado. Te contactaremos pronto.';
+            note.style.color = 'var(--secondary)';
           } else {
             note.textContent = '¡Listo! Te notificaremos cuando lancemos.';
             note.style.color = 'var(--primary)';
             input.value = '';
           }
+
         } catch (err) {
-          console.error('Supabase error:', err);
-          note.textContent = 'Hubo un error. Intenta de nuevo.';
+          console.error('Request error:', err);
+          note.textContent = 'Error de conexión. Intenta de nuevo.';
           note.style.color = 'var(--error)';
         } finally {
           btn.disabled = false;
