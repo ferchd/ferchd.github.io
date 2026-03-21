@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidad — Aequo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #34146c;
+      --primary-container: #4b2e83;
+      --primary-fixed: #e8ddf5;
+      --secondary: #9a7cbf;
+      --surface: #fef7ff;
+      --surface-container: #f3ebf7;
+      --surface-container-low: #f9f1fc;
+      --surface-container-lowest: #ffffff;
+      --surface-container-highest: #e7e0eb;
+      --surface-variant: #e7e0eb;
+      --on-surface: #1d1a22;
+      --on-surface-variant: #4a4458;
+      --outline-variant: #cbc4d2;
+      --error: #ba1a1a;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ═══ AMBIENT ═══ */
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-orb--1 {
+      width: 500px;
+      height: 500px;
+      background: var(--primary);
+      top: -200px;
+      right: -100px;
+    }
+
+    .ambient-orb--2 {
+      width: 400px;
+      height: 400px;
+      background: var(--secondary);
+      bottom: -150px;
+      left: -100px;
+    }
+
+    /* ═══ PAGE ═══ */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ═══ NAV ═══ */
+    .nav {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideDown 0.8s ease-out both;
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav__logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .nav__name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--on-surface);
+      letter-spacing: -0.02em;
+    }
+
+    .nav__back {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.25s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .nav__back:hover {
+      color: var(--primary);
+    }
+
+    .nav__back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ═══ CONTENT ═══ */
+    .content {
+      flex: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 1rem 3rem 4rem;
+      width: 100%;
+      animation: fadeSlideUp 0.9s 0.15s ease-out both;
+    }
+
+    .content__badge {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: var(--primary-fixed);
+      padding: 0.3rem 0.85rem;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 1.25rem;
+    }
+
+    .content__title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      color: var(--on-surface);
+      margin-bottom: 0.75rem;
+    }
+
+    .content__title span {
+      background: linear-gradient(135deg, var(--primary), var(--primary-container));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .content__updated {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      color: var(--outline-variant);
+      margin-bottom: 3rem;
+    }
+
+    /* ─── Sections ─── */
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section__heading {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--on-surface);
+      letter-spacing: -0.01em;
+      margin-bottom: 0.75rem;
+    }
+
+    .section__text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--on-surface-variant);
+      line-height: 1.75;
+    }
+
+    .section__text+.section__text {
+      margin-top: 0.75rem;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: var(--surface-container-low);
+      border-radius: 1.5rem;
+      padding: 1.5rem 1.75rem;
+      margin-top: 1rem;
+    }
+
+    .highlight-box__item {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.85rem;
+      color: var(--on-surface-variant);
+      line-height: 1.7;
+      padding: 0.35rem 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .highlight-box__item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      min-width: 5px;
+      background: var(--primary);
+      border-radius: 50%;
+      margin-top: 0.55rem;
+    }
+
+    /* ═══ FOOTER ═══ */
+    .footer {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideUp 1s 0.6s ease-out both;
+    }
+
+    .footer__copy {
+      font-size: 0.75rem;
+      color: var(--outline-variant);
+    }
+
+    .footer__links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer__link {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      transition: color 0.25s ease;
+    }
+
+    .footer__link:hover {
+      color: var(--primary);
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 1.5rem 1.5rem;
+      }
+
+      .content {
+        padding: 1rem 1.5rem 3rem;
+      }
+
+      .content__title {
+        font-size: 1.8rem;
+      }
+
+      .footer {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ambient-orb ambient-orb--1"></div>
+  <div class="ambient-orb ambient-orb--2"></div>
+
+  <div class="page">
+
+    <nav class="nav">
+      <a href="/" class="nav__brand">
+        <img src="aequo-logo.png" alt="Aequo" class="nav__logo">
+        <span class="nav__name">Aequo</span>
+      </a>
+      <a href="/" class="nav__back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Volver al inicio
+      </a>
+    </nav>
+
+    <main class="content">
+
+      <span class="content__badge">Legal</span>
+      <h1 class="content__title">Política de <span>Privacidad</span></h1>
+      <p class="content__updated">Última actualización: 19 de marzo de 2026</p>
+
+      <div class="section">
+        <h2 class="section__heading">1. Responsable del tratamiento</h2>
+        <p class="section__text">Aequo S.A.S., con domicilio en Bucaramanga, Santander, Colombia, es responsable del
+          tratamiento de los datos personales recopilados a través del sitio web aequo.com.co y sus servicios asociados.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">2. Datos que recopilamos</h2>
+        <p class="section__text">Actualmente, en la fase de prelanzamiento, recopilamos únicamente la siguiente
+          información:</p>
+        <div class="highlight-box">
+          <div class="highlight-box__item">Dirección de correo electrónico corporativo, proporcionada voluntariamente a
+            través del formulario de acceso anticipado.</div>
+          <div class="highlight-box__item">Fecha y hora de registro.</div>
+          <div class="highlight-box__item">Token de verificación de seguridad (Cloudflare Turnstile), utilizado
+            exclusivamente para prevenir envíos automatizados.</div>
+        </div>
+        <p class="section__text" style="margin-top:1rem;">No recopilamos datos sensibles, información financiera,
+          cookies de rastreo ni datos de navegación con fines comerciales.</p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">3. Finalidad del tratamiento</h2>
+        <p class="section__text">Los datos recopilados se utilizan exclusivamente para notificar al usuario sobre el
+          lanzamiento de Aequo, enviar información relevante sobre el producto y gestionar la lista de acceso
+          anticipado. No compartimos, vendemos ni transferimos datos personales a terceros bajo ninguna circunstancia.
+        </p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">4. Base legal</h2>
+        <p class="section__text">El tratamiento de datos se fundamenta en el consentimiento libre, previo, expreso e
+          informado del titular, de conformidad con la Ley 1581 de 2012 (Ley de Protección de Datos Personales de
+          Colombia) y el Decreto 1377 de 2013.</p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">5. Almacenamiento y seguridad</h2>
+        <p class="section__text">Los datos se almacenan en servidores de Supabase con cifrado en reposo y en tránsito.
+          El acceso a la base de datos está protegido por políticas de seguridad a nivel de fila (Row Level Security)
+          que impiden la lectura, modificación o eliminación no autorizada de registros.</p>
+        <p class="section__text">Adicionalmente, implementamos verificación de integridad mediante Cloudflare Turnstile,
+          mecanismos anti-spam y limitación de velocidad de solicitudes.</p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">6. Derechos del titular</h2>
+        <p class="section__text">De acuerdo con la legislación colombiana, usted tiene derecho a:</p>
+        <div class="highlight-box">
+          <div class="highlight-box__item">Conocer, actualizar y rectificar sus datos personales.</div>
+          <div class="highlight-box__item">Solicitar prueba del consentimiento otorgado.</div>
+          <div class="highlight-box__item">Ser informado sobre el uso que se le ha dado a sus datos.</div>
+          <div class="highlight-box__item">Revocar el consentimiento y solicitar la eliminación de sus datos.</div>
+          <div class="highlight-box__item">Presentar quejas ante la Superintendencia de Industria y Comercio (SIC).
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">7. Ejercicio de derechos</h2>
+        <p class="section__text">Para ejercer cualquiera de estos derechos, puede escribirnos a
+          <strong>privacidad@aequo.com.co</strong>. Responderemos su solicitud en un plazo máximo de quince (15) días
+          hábiles, conforme a la normativa vigente.</p>
+      </div>
+
+      <div class="section">
+        <h2 class="section__heading">8. Modificaciones</h2>
+        <p class="section__text">Aequo S.A.S. se reserva el derecho de modificar esta política en cualquier momento. Los
+          cambios serán publicados en esta página con la fecha de actualización correspondiente. El uso continuado del
+          sitio después de la publicación de cambios constituye aceptación de los mismos.</p>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <span class="footer__copy">&copy; 2026 Aequo S.A.S. Todos los derechos reservados.</span>
+      <div class="footer__links">
+        <a href="privacity.html" class="footer__link">Política de privacidad</a>
+        <a href="terms.html" class="footer__link">Términos</a>
+        <a href="contact.html" class="footer__link">Contacto</a>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+
+</html>
