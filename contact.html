@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto — Aequo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #34146c;
+      --primary-container: #4b2e83;
+      --primary-fixed: #e8ddf5;
+      --secondary: #9a7cbf;
+      --surface: #fef7ff;
+      --surface-container: #f3ebf7;
+      --surface-container-low: #f9f1fc;
+      --surface-container-lowest: #ffffff;
+      --surface-container-highest: #e7e0eb;
+      --surface-variant: #e7e0eb;
+      --on-surface: #1d1a22;
+      --on-surface-variant: #4a4458;
+      --outline-variant: #cbc4d2;
+      --error: #ba1a1a;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ambient-orb--1 {
+      width: 500px;
+      height: 500px;
+      background: var(--primary);
+      top: -200px;
+      right: -100px;
+    }
+
+    .ambient-orb--2 {
+      width: 400px;
+      height: 400px;
+      background: var(--secondary);
+      bottom: -150px;
+      left: -100px;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideDown 0.8s ease-out both;
+    }
+
+    .nav__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .nav__logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .nav__name {
+      font-family: 'Manrope', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--on-surface);
+      letter-spacing: -0.02em;
+    }
+
+    .nav__back {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.25s ease;
+    }
+
+    .nav__back:hover {
+      color: var(--primary);
+    }
+
+    .nav__back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ═══ CONTACT LAYOUT ═══ */
+    .contact {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem 4rem;
+      animation: fadeSlideUp 0.9s 0.15s ease-out both;
+    }
+
+    .contact__wrapper {
+      max-width: 580px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .contact__icon {
+      width: 64px;
+      height: 64px;
+      background: var(--primary-fixed);
+      border-radius: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .contact__icon svg {
+      width: 28px;
+      height: 28px;
+      color: var(--primary);
+    }
+
+    .contact__badge {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: var(--primary-fixed);
+      padding: 0.3rem 0.85rem;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 1.25rem;
+    }
+
+    .contact__title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+      color: var(--on-surface);
+      margin-bottom: 1rem;
+    }
+
+    .contact__title span {
+      background: linear-gradient(135deg, var(--primary), var(--primary-container));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .contact__desc {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1rem;
+      color: var(--on-surface-variant);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─── Email card ─── */
+    .email-card {
+      background: var(--surface-container-low);
+      border-radius: 2rem;
+      padding: 2.25rem 2.5rem;
+      max-width: 420px;
+      margin: 0 auto 1.5rem;
+      transition: all 0.4s ease;
+      text-decoration: none;
+      display: block;
+      cursor: pointer;
+    }
+
+    .email-card:hover {
+      background: var(--surface-container-lowest);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 40px rgba(29, 26, 34, 0.06);
+    }
+
+    .email-card__row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .email-card__icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-container));
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .email-card__icon svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .email-card__info {
+      text-align: left;
+    }
+
+    .email-card__label {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 0.2rem;
+    }
+
+    .email-card__address {
+      font-family: 'Manrope', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+
+    .email-card__hint {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      color: var(--outline-variant);
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .email-card__hint svg {
+      width: 12px;
+      height: 12px;
+      color: var(--outline-variant);
+    }
+
+    /* ─── Response time ─── */
+    .response-note {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.78rem;
+      color: var(--outline-variant);
+      text-align: center;
+    }
+
+    /* ─── Topics ─── */
+    .topics {
+      max-width: 420px;
+      margin: 2rem auto 0;
+    }
+
+    .topics__title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--outline-variant);
+      text-align: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .topics__grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .topics__tag {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      background: var(--surface-container);
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      transition: all 0.3s ease;
+    }
+
+    .topics__tag:hover {
+      background: var(--primary-fixed);
+      color: var(--primary);
+    }
+
+    /* ═══ FOOTER ═══ */
+    .footer {
+      padding: 2rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeSlideUp 1s 0.6s ease-out both;
+    }
+
+    .footer__copy {
+      font-size: 0.75rem;
+      color: var(--outline-variant);
+    }
+
+    .footer__links {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .footer__link {
+      font-family: 'Manrope', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      text-decoration: none;
+      transition: color 0.25s ease;
+    }
+
+    .footer__link:hover {
+      color: var(--primary);
+    }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeSlideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        padding: 1.5rem;
+      }
+
+      .contact {
+        padding: 2rem 1.5rem 3rem;
+      }
+
+      .contact__title {
+        font-size: 1.8rem;
+      }
+
+      .email-card {
+        padding: 1.5rem 1.75rem;
+      }
+
+      .footer {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ambient-orb ambient-orb--1"></div>
+  <div class="ambient-orb ambient-orb--2"></div>
+
+  <div class="page">
+
+    <nav class="nav">
+      <a href="/" class="nav__brand">
+        <img src="aequo-logo.png" alt="Aequo" class="nav__logo">
+        <span class="nav__name">Aequo</span>
+      </a>
+      <a href="/" class="nav__back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Volver al inicio
+      </a>
+    </nav>
+
+    <main class="contact">
+      <div class="contact__wrapper">
+
+        <span class="contact__badge">Contacto</span>
+        <h1 class="contact__title">Hablemos de <span>Aequo</span></h1>
+        <p class="contact__desc">
+          ¿Tienes preguntas sobre el sistema, quieres explorar una integración
+          o simplemente quieres saber más? Escríbenos directamente.
+        </p>
+
+        <a href="mailto:contacto@aequo.com.co" class="email-card">
+          <div class="email-card__row">
+            <div class="email-card__icon">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+              </svg>
+            </div>
+            <div class="email-card__info">
+              <div class="email-card__label">Correo corporativo</div>
+              <div class="email-card__address">contacto@aequo.com.co</div>
+            </div>
+          </div>
+          <div class="email-card__hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M7 17L17 7M17 7H7M17 7V17" />
+            </svg>
+            Clic para abrir tu cliente de correo
+          </div>
+        </a>
+
+        <p class="response-note">Tiempo de respuesta habitual: menos de 24 horas en días hábiles.</p>
+
+        <div class="topics">
+          <div class="topics__title">¿Sobre qué podemos ayudarte?</div>
+          <div class="topics__grid">
+            <span class="topics__tag">Información general</span>
+            <span class="topics__tag">Acceso anticipado</span>
+            <span class="topics__tag">Integraciones</span>
+            <span class="topics__tag">Alianzas comerciales</span>
+            <span class="topics__tag">Soporte técnico</span>
+            <span class="topics__tag">Privacidad y datos</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span class="footer__copy">&copy; 2026 Aequo S.A.S. Todos los derechos reservados.</span>
+      <div class="footer__links">
+        <a href="privacity.html" class="footer__link">Política de privacidad</a>
+        <a href="terms.html" class="footer__link">Términos</a>
+        <a href="contact.html" class="footer__link">Contacto</a>
+      </div>
+    </footer>
+
+  </div>
+
+</body>
+
+</html>
